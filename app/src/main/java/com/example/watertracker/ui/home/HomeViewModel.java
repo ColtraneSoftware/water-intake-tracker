@@ -17,37 +17,37 @@ import java.util.Locale;
 public class HomeViewModel extends ViewModel {
 
     // Define LiveData fields to hold UI related data
-    private final MutableLiveData<String> mText;
-    private final MutableLiveData<Integer> mWaterIntake;
-    private final MutableLiveData<Integer> mRecommendedIntake;
+    private final MutableLiveData<String> todaysIntake;
+    private final MutableLiveData<Integer> waterIntake;
+    private final MutableLiveData<Integer> recommendedIntake;
 
     // Constructor for the ViewModel class that takes a Context as an argument
     public HomeViewModel(Context context) {
         super();
 
         // Initialize the LiveData fields with default values
-        mText = new MutableLiveData<>();
-        mText.setValue("Today's Water Intake (oz): 0");
+        todaysIntake = new MutableLiveData<>();
+        todaysIntake.setValue("Today's Water Intake (oz): 0");
 
-        mWaterIntake = new MutableLiveData<>();
-        mWaterIntake.setValue(0);
+        waterIntake = new MutableLiveData<>();
+        waterIntake.setValue(0);
 
         // Get the user's weight from SharedPreferences and set the recommended intake value
         SharedPreferences preferences = context.getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
-        int weight = preferences.getInt("Weight", 0);
-        mRecommendedIntake = new MutableLiveData<>();
-        mRecommendedIntake.setValue(weight/2); // set the recommended intake value based on weight
+        int weight = preferences.getInt("Weight", 150);
+        recommendedIntake = new MutableLiveData<>();
+        recommendedIntake.setValue(weight/2); // set the recommended intake value based on weight
     }
 
     // Getter methods to access the LiveData fields from the fragment
     public LiveData<String> getText() {
-        return mText;
+        return todaysIntake;
     }
     public LiveData<Integer> getWaterIntake() {
-        return mWaterIntake;
+        return waterIntake;
     }
     public LiveData<Integer> getRecommendedIntake() {
-        return mRecommendedIntake;
+        return recommendedIntake;
     }
 
     // Method to add water intake to the database and update the UI elements
@@ -69,9 +69,9 @@ public class HomeViewModel extends ViewModel {
         }
 
         // Update the LiveData values and UI elements
-        mWaterIntake.setValue(mWaterIntake.getValue() + ozToAdd);
-        int recommendedIntake = mRecommendedIntake.getValue();
-        mText.setValue("Today's Water Intake (oz): " + mWaterIntake.getValue() + " / " + recommendedIntake);
+        waterIntake.setValue(waterIntake.getValue() + ozToAdd);
+        int recommendedIntake = this.recommendedIntake.getValue();
+        todaysIntake.setValue("Today's Water Intake (oz): " + waterIntake.getValue() + " / " + recommendedIntake);
 
         // Close the database helper
         dbHelper.close();

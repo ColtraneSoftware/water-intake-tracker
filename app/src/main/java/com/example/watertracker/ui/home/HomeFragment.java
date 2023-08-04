@@ -37,6 +37,8 @@ public class HomeFragment extends Fragment {
         homeViewModel.getRecommendedIntake().observe(getViewLifecycleOwner(), recommendedIntake -> {
             // Calculate the progress of the water intake as a percentage of the recommended intake and update the ProgressBar
             if (homeViewModel != null && homeViewModel.getWaterIntake() != null) {
+                if(recommendedIntake == 0)
+                    recommendedIntake = 1;
                 int progress = Math.min(homeViewModel.getWaterIntake().getValue() * 100 / recommendedIntake, 100);
                 waterProgressBar.setProgress(progress);
             }
@@ -51,13 +53,16 @@ public class HomeFragment extends Fragment {
         // Attach a click listener to the add button
         addButton.setOnClickListener(view -> {
             // Get the number of ounces to add from the EditText and add it to the water intake
-            int ozToAdd = Integer.parseInt(ozToAddEditText.getText().toString());
-            homeViewModel.addWaterIntake(ozToAdd, getContext());
+            try {
+                int ozToAdd = Integer.parseInt(ozToAddEditText.getText().toString());
+                homeViewModel.addWaterIntake(ozToAdd, getContext());
+            } catch(NumberFormatException exc) {} // A number was not entered
 
             // Update the water intake TextView and ProgressBar
             waterIntakeTextView.setText(homeViewModel.getText().getValue());
-            if (homeViewModel != null && homeViewModel.getRecommendedIntake() != null) {
-                int progress = Math.min(homeViewModel.getWaterIntake().getValue() * 100 / homeViewModel.getRecommendedIntake().getValue(), 100);
+            if (homeViewModel != null && homeViewModel.getRecommendedIntake() != null
+                    && homeViewModel.getRecommendedIntake().getValue() != null) {
+                int progress = homeViewModel.getWaterIntake().getValue() * 100 / homeViewModel.getRecommendedIntake().getValue();
                 waterProgressBar.setProgress(progress);
             }
 
@@ -74,7 +79,7 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if (homeViewModel != null) {
+        if (homeViewModel.getText().getValue() != null) {
             waterIntakeTextView.setText(homeViewModel.getText().getValue());
             waterProgressBar.setProgress(Math.min(homeViewModel.getWaterIntake().getValue() * 100 / homeViewModel.getRecommendedIntake().getValue(), 100));
         }
